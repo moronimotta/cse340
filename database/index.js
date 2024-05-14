@@ -31,14 +31,7 @@ module.exports = {
 }
 } else {
   pool = new Pool({
-    host: process.env.DATABASE_HOSTNAME,
-    port: process.env.DATABASE_PORT,
-    database: process.env.DATABASE_SCHEMA,
-    user: process.env.DATABASE_USERNAME,
-    password: process.env.DATABASE_PASSWORD,
-    ssl: {
-      rejectUnauthorized: false,
-    },
-  });
+    connectionString: process.env.DATABASE_URL,
+  })
   module.exports = pool
 }
