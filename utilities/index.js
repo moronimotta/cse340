@@ -5,24 +5,18 @@ const Util = {}
  * Constructs the nav HTML unordered list
  ************************** */
 Util.getNav = async function (req, res, next) {
-  let data = await invModel.getClassifications()
-  let list = "<ul>"
-  list += '<li><a href="/" title="Home page">Home</a></li>'
+  let data = await invModel.getClassifications();
+  let list = '<ul class="nav-list">';
+  list += '<li><a href="/" class="nav-link" title="Home page">Home</a></li>';
   data.rows.forEach((row) => {
-    list += "<li>"
-    list +=
-      '<a href="/inv/type/' +
-      row.classification_id +
-      '" title="See our inventory of ' +
-      row.classification_name +
-      ' vehicles">' +
-      row.classification_name +
-      "</a>"
-    list += "</li>"
-  })
-  list += "</ul>"
-  return list
-}
+    list += '<li>';
+    list += '<a href="/inv/type/' + row.classification_id + '" class="nav-link" title="See our inventory of ' + row.classification_name + ' vehicles">' + row.classification_name + '</a>';
+    list += '</li>';
+  });
+  list += '</ul>';
+  return list;
+};
+
 
 /* **************************************
 * Build the classification view HTML
@@ -35,7 +29,7 @@ Util.buildClassificationGrid = async function(data){
         grid += '<li>'
         grid +=  '<a href="../../inv/detail/'+ vehicle.inv_id 
         + '" title="View ' + vehicle.inv_make + ' '+ vehicle.inv_model 
-        + 'details"><img src="' + vehicle.inv_thumbnail 
+        + 'details"><img id="details-img" src="' + vehicle.inv_image 
         +'" alt="Image of '+ vehicle.inv_make + ' ' + vehicle.inv_model 
         +' on CSE Motors" /></a>'
         grid += '<div class="namePrice">'
@@ -56,6 +50,27 @@ Util.buildClassificationGrid = async function(data){
     }
     return grid
   }
+
+/* **************************************
+* Build the detail view HTML
+* ************************************ */
+Util.buildDetail = async function(data) {
+  let detail = '';
+  if (data.length > 0) {
+    detail = '<div id="inv-detail">';
+    data.forEach(vehicle => {
+      detail += '<h1>' + vehicle.inv_make + ' ' + vehicle.inv_model + '</h1>';
+      detail += '<img id="details-img" src="' + vehicle.inv_image + '" alt="Image of ' + vehicle.inv_make + ' ' + vehicle.inv_model + ' on CSE Motors" />';
+      detail += '<p><strong>Price:</strong> ' + new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(vehicle.inv_price) + '</p>';
+      detail += '<p><strong>Year:</strong> ' + vehicle.inv_year + '</p>';
+      detail += '<p><strong>Color:</strong> ' + vehicle.inv_color + '</p>';
+      detail += '<p><strong>Mileage:</strong> ' + new Intl.NumberFormat('en-US').format(vehicle.inv_miles) + ' miles</p>';      detail += '<p><strong>Details:</strong> ' + vehicle.inv_description + '</p>'; 
+    });
+    detail += '</div>';
+  }
+  return detail;
+};
+
 
   /* ****************************************
  * Middleware For Handling Errors
