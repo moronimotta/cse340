@@ -18,6 +18,15 @@ Util.getNav = async function (req, res, next) {
 };
 
 
+Util.getAdminNav = async function (req, res, next) {
+  let list = '<ul class="nav-list">';
+  list += '<li><a href="/" class="nav-link" title="Home page">Home</a></li>';
+  list += '<li><a href="/inv/add-classification" class="nav-link" title="Add a new vehicle classification">Add Classification</a></li>';
+  list += '<li><a href="/inv/add-inventory" class="nav-link" title="Add a new vehicle to inventory">Add Inventory</a></li>';
+  list += '</ul>';
+  return list;
+};
+
 /* **************************************
 * Build the classification view HTML
 * ************************************ */
@@ -70,6 +79,25 @@ Util.buildDetail = async function(data) {
   }
   return detail;
 };
+
+Util.buildClassificationList = async function (classification_id = null) {
+  let data = await invModel.getClassifications()
+  let classificationList =
+    '<select name="classification_id" id="classificationList" required>'
+  classificationList += "<option value=''>Choose a Classification</option>"
+  data.rows.forEach((row) => {
+    classificationList += '<option value="' + row.classification_id + '"'
+    if (
+      classification_id != null &&
+      row.classification_id == classification_id
+    ) {
+      classificationList += " selected "
+    }
+    classificationList += ">" + row.classification_name + "</option>"
+  })
+  classificationList += "</select>"
+  return classificationList
+}
 
 
   /* ****************************************

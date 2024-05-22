@@ -42,6 +42,82 @@ invCont.buildInventoryDetail = async function (req, res, next) {
   }
 }
 
+// Inventory Management
+invCont.buildInventoryManagement = async function (req, res, next) {
+  try {
+    let nav = await utilities.getAdminNav()
+    res.render("./inventory/management", {
+      title: "Inventory Management",
+      nav,
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+// Add Classifications
+invCont.buildAddClassification = async function (req, res, next) {
+  try {
+    let nav = await utilities.getAdminNav()
+    res.render("./inventory/add-classification", {
+      title: "Add Classification",
+      nav,
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+invCont.addClassification = async function (req, res) {
+  try {
+    const { classification_name } = req.body
+
+    if (!classification_name.match(/^[a-zA-Z0-9]+$/)) {
+      req.flash("notice", "Classification name must be alphanumeric.")
+      res.redirect("/inv/add-classification")
+      return
+    }
+
+    await invModel.addClassification(classification_name)
+
+    req.flash("notice", "Classification " + classification_name + " added.")
+    res.redirect("/inv/add-classification")
+  } catch (error) {
+    req.flash("notice", "Error adding classification.")
+    res.redirect("/inv/add-classification")
+  }
+}
+
+// Add Inventory
+invCont.buildAddInventory = async function (req, res, next) {
+  try {
+    let nav = await utilities.getAdminNav()
+    let classifications = await utilities.buildClassificationList ()
+    res.render("./inventory/add-inventory", {
+      title: "Add Inventory",
+      nav,
+      classifications,
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+invCont.addInventory = async function (req, res) {
+  try {
+    const { inv_make, inv_model, inv_year, inv_color, inv_price, classification_id, inv_description, inv_miles } = req.body
+    const inv_image = "/images/vehicles/no-image.png"
+    const inv_thumbnail = "/images/vehicles/no-image-tn.png"
+    await invModel.addInventory(inv_make, inv_model, inv_year, inv_color, inv_price, parseInt(classification_id), inv_image, inv_thumbnail, inv_description, inv_miles)
+    req.flash("notice", "Inventory item added.")
+    res.redirect("/inv/add-inventory")
+  } catch (error) {
+    req.flash("notice", "Error adding inventory item.")
+    res.redirect("/inv/add-inventory")
+  }
+}
+
+
 invCont.triggerError = function(req, res, next) {
   try {
     throw new Error('Intentional error triggered');

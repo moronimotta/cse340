@@ -128,6 +128,64 @@ form p a:hover {
   text-decoration: underline;
 }
 
+form#vehicleForm {
+  background-color: white;
+  border: 1px solid #ab191a;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  max-width: 400px;
+  width: 100%;
+}
+
+form#vehicleForm label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: bold;
+  color: #ab191a;
+}
+
+form#vehicleForm input {
+  width: calc(100% - 20px);
+  padding: 8px 10px;
+  margin-bottom: 16px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+form#vehicleForm button {
+  width: 100%;
+  background-color: #ab191a;
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 4px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+form#vehicleForm button:hover {
+  background-color: #911617;
+}
+
+form#vehicleForm p {
+  text-align: center;
+  margin-top: 20px;
+}
+
+form#vehicleForm p a {
+  color: #ab191a;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+form#vehicleForm p a:hover {
+  text-decoration: underline;
+}
+
+
 #details-img {
   width: 100%;
   height: 100%;

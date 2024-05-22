@@ -1,0 +1,12 @@
+<section>
+    <h1><%- messages() %></h1>
+
+    <form id="vehicleForm" action="/inv/add-classification" method="POST">
+        <div>
+            <label for="classificationName">Classification Name:</label>
+            <input type="text" id="classificationName" name="classification_name" required>
+        </div>
+        <button type="submit">Add Classification</button>
+    </form>
+
+</section>
