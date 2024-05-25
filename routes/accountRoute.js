@@ -28,9 +28,40 @@ router.post(
 // Process the login attempt
 router.post(
     "/login",
-    (req, res) => {
-        res.status(200).send('login process')
-    }
+    regValidate.loginRules(),
+    regValidate.checkLoginData,
+    utilities.handleErrors(accountController.accountLogin)
 )
+
+// Process the logout attempt
+router.get("/logout", accountController.accountLogout)
+
+
+router.get("/",
+    utilities.checkLogin,
+    utilities.handleErrors(accountController.buildAccount))
+
+router.get("/update",
+    utilities.checkLogin,
+    utilities.handleErrors(accountController.buildAccount))
+
+router.get("/info",
+    utilities.checkLogin,
+    utilities.handleErrors(accountController.buildUpdateAccount))
+
+
+router.post(
+    "/update",
+    utilities.checkLogin,
+    utilities.handleErrors(accountController.updateAccount)
+
+)
+
+router.post(
+    "/change-password",
+    utilities.checkLogin,
+    utilities.handleErrors(accountController.changePassword)
+)
+
 
 module.exports = router;

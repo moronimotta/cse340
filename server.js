@@ -17,6 +17,8 @@ const utilities = require("./utilities/")
 const session = require("express-session")
 const pool = require('./database/')
 const bodyParser = require("body-parser")
+const cookieParser = require("cookie-parser")
+
 
 /* ***********************
  * Middleware
@@ -32,6 +34,7 @@ app.use(session({
   name: 'sessionId',
 }))
 
+
 // Express Messages Middleware
 app.use(require('connect-flash')())
 app.use(function(req, res, next){
@@ -41,6 +44,9 @@ app.use(function(req, res, next){
 
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true })) // for parsing application/x-www-form-urlencoded
+app.use(cookieParser())
+app.use(utilities.checkJWTToken)
+
 
 /* ***********************
  * View Engine and Templates
@@ -73,6 +79,11 @@ app.use(async (req, res, next) => {
 *************************/
 app.use(async (err, req, res, next) => {
   let nav = await utilities.getNav();
+
+  const accountData = res.locals.accountData;
+  let tools = await utilities.buildTools(accountData);
+
+
   console.error(`Error at: "${req.originalUrl}": ${err.message}`);
   let message;
   if(err.status == 404){ 
@@ -85,7 +96,8 @@ app.use(async (err, req, res, next) => {
   res.status(err.status || 500).render("errors/error", {
     title: err.status || 'Server Error',
     message,
-    nav
+    nav,
+    tools
   });
 });
 

@@ -1,5 +1,8 @@
+const jwt = require("jsonwebtoken")
+require("dotenv").config()
 const invModel = require("../models/inventory-model")
 const Util = {}
+
 
 /* ************************
  * Constructs the nav HTML unordered list
@@ -19,8 +22,15 @@ Util.getNav = async function (req, res, next) {
 
 
 Util.getAdminNav = async function (req, res, next) {
+  let data = await invModel.getClassifications();
+
   let list = '<ul class="nav-list">';
   list += '<li><a href="/" class="nav-link" title="Home page">Home</a></li>';
+  data.rows.forEach((row) => {
+    list += '<li>';
+    list += '<a href="/inv/type/' + row.classification_id + '" class="nav-link" title="See our inventory of ' + row.classification_name + ' vehicles">' + row.classification_name + '</a>';
+    list += '</li>';
+  });
   list += '<li><a href="/inv/add-classification" class="nav-link" title="Add a new vehicle classification">Add Classification</a></li>';
   list += '<li><a href="/inv/add-inventory" class="nav-link" title="Add a new vehicle to inventory">Add Inventory</a></li>';
   list += '</ul>';
@@ -80,10 +90,40 @@ Util.buildDetail = async function(data) {
   return detail;
 };
 
-Util.buildClassificationList = async function (classification_id = null) {
+Util.buildTopHeader = async function (req, res, next) {
+  let topHeader = '<header id="top-header">';
+  topHeader += '<div class="container">';
+  topHeader += '<div class="row">';
+  topHeader += '<div class="col-6">';
+  topHeader += '<span class="siteName">';
+  topHeader += '<a href="/" title="Return to home page">CSE Motors</a>';
+  topHeader += '</span>';
+  topHeader += '</div>';
+  topHeader += '<div class="col-6">';
+  topHeader += '<div id="tools">';
+  if (res.locals.loggedin) {
+    topHeader += '<span>Welcome, ' + res.locals.username + '</span>';
+    topHeader += '<a class="nav-link" title="Click to log out" href="/account/logout">Logout</a>';
+  } else {
+    topHeader += '<a class="nav-link" title="Click to log in" href="/account/login">My Account</a>';
+  }
+  topHeader += '</div>';
+  topHeader += '</div>';
+  topHeader += '</div>';
+  topHeader += '</div>';
+  topHeader += '</header>';
+
+  return topHeader;
+};
+
+Util.buildClassificationList = async function (classification_id = null, readonly = false) {
   let data = await invModel.getClassifications()
-  let classificationList =
-    '<select name="classification_id" id="classificationList" required>'
+  let classificationList = ''
+  if (readonly) {
+    classificationList = '<select name="classification_id" id="classificationList" required disabled>'
+  }else {
+    classificationList = '<select name="classification_id" id="classificationList" required>'
+  }
   classificationList += "<option value=''>Choose a Classification</option>"
   data.rows.forEach((row) => {
     classificationList += '<option value="' + row.classification_id + '"'
@@ -106,5 +146,100 @@ Util.buildClassificationList = async function (classification_id = null) {
  * General Error Handling
  **************************************** */
 Util.handleErrors = fn => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next)
+
+
+/* ****************************************
+* Middleware to check token validity
+**************************************** */
+Util.checkJWTToken = (req, res, next) => {
+  if (req.cookies.jwt) {
+   jwt.verify(
+    req.cookies.jwt,
+    process.env.ACCESS_TOKEN_SECRET,
+    function (err, accountData) {
+     if (err) {
+      req.flash("Please log in")
+      res.clearCookie("jwt")
+      return res.redirect("/account/login")
+     }
+     res.locals.accountData = accountData
+     res.locals.loggedin = 1
+     next()
+    })
+  } else {
+   next()
+  }
+ }
+
+ /* ****************************************
+ *  Check Login
+ * ************************************ */
+ Util.checkLogin = (req, res, next) => {
+  if (res.locals.loggedin) {
+    next()
+  } else {
+    req.flash("notice", "Please log in.")
+    return res.redirect("/account/login")
+  }
+ }
+
+//  checkUpdateData
+Util.checkUpdateData = (req, res, next) => {
+  const { account_firstname, account_lastname, account_email } = req.body
+  if (account_firstname && account_lastname && account_email) {
+    next()
+  } else {
+    req.flash("notice", "Please fill in all fields.")
+    return res.redirect("/account/info")
+  }
+}
+
+// checkIfPasswordMatches
+Util.checkIfPasswordMatches = (req, res, next) => {
+
+  const { new_pwd } = req.body
+  const accountData = res.locals.accountData
+  const passwordMatch = bcrypt.compareSync(new_pwd, accountData.account_password)
+  if (!passwordMatch) {
+    req.flash("notice", "Current password is incorrect.")
+    return res.redirect("/account/info")
+  }
+
+  if (new_pwd === confirm_pwd) {
+    next()
+  } else {
+    req.flash("notice", "Passwords do not match.")
+    return res.redirect("/account/info")
+  }
+}
+
+ /* ****************************************
+ *  Check Authorization
+ * ************************************ */
+Util.checkAuthorization = (req, res, next) => {
+  if (res.locals.accountData) {
+    if(res.locals.accountData.account_type != "Client"){
+      next()
+    } else {
+      req.flash("notice", "You are not authorized. Maybe you have a different login?")
+      return res.redirect("/account/login")
+    }
+  } else {
+    req.flash("notice", "Please log in.")
+    return res.redirect("/account/login")
+  }
+}
+
+Util.buildTools = async function (account) {
+  let tools = '<div id="tools">'
+  if (account) {
+    tools += '<span>Welcome, ' + account.account_firstname + '</span>'
+    tools += '<a class="nav-link" title="Click to log out" href="/account/logout">Logout</a>'
+  } else {
+    tools += '<a class="nav-link" title="Click to log in" href="/account/login">My Account</a>'
+  }
+  tools += '</div>'
+  return tools
+}
 
 module.exports = Util
