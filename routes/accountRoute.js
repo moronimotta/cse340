@@ -43,10 +43,6 @@ router.get("/",
 
 router.get("/update",
     utilities.checkLogin,
-    utilities.handleErrors(accountController.buildAccount))
-
-router.get("/info",
-    utilities.checkLogin,
     utilities.handleErrors(accountController.buildUpdateAccount))
 
 

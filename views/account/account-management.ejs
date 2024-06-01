@@ -1,0 +1,27 @@
+<section>
+    <h1><%- messages() %></h1>
+    <h1><%- title %></h1>
+
+    <% if (account_type==="Client" ) { %>
+        <h2>Welcome <%= account_firstname %>
+        </h2>
+        <% } else if (account_type==="Employee" || account_type==="Admin" ) { %>
+            <div class="card">
+                <h2>Welcome <%= account_firstname %>
+                </h2>
+                <h3>Inventory Management</h3>
+                <ul>
+                    <li>
+                        <p><a href="/inv/management">Access Inventory Management</a></p>
+                    </li>
+                    <li>
+                        <p><a href="/account/update">Update Account Information</a></p>
+                    </li>
+                </ul>
+            </div>
+            <% } else {%>
+                <p><a href="/account/update">Update Account Information</a></p>
+                <% } %>
+
+
+</section>

@@ -13,6 +13,9 @@ async function buildLogin(req, res, next) {
     let tools = await utilities.buildTools(accountData);
 
     if (accountData) {
+        if (accountData.account_type === "Admin" || accountData.account_type === "Manager") {
+            nav = await utilities.getAdminNav()
+        }
         req.flash("notice", "You are already logged in.")
         return res.redirect("/account/")
     }
@@ -33,7 +36,7 @@ async function buildRegistration(req, res, next) {
     res.render("account/registration", {
         title: "Register",
         nav,
-        tools, 
+        tools,
         errors: null,
     })
 }
@@ -41,8 +44,16 @@ async function buildRegistration(req, res, next) {
 async function buildAccount(req, res, next) {
     let nav = await utilities.getNav()
     let user = res.locals.accountData
+
+    if (user) {
+        if (user.account_type === "Admin" || user.account_type === "Manager") {
+            nav = await utilities.getAdminNav()
+        }
+    }
+
+
     let tools = await utilities.buildTools(user)
-    res.render("account/user-main-page", {
+    res.render("account/account-management", {
         title: "Account",
         nav,
         tools,
@@ -57,6 +68,13 @@ async function buildAccount(req, res, next) {
 // logout
 async function accountLogout(req, res, next) {
     res.clearCookie("jwt")
+    if (req.cookies.cart) {
+        res.clearCookie("cart")
+        req.flash("notice", "You are logged out. Your cart has been cleared.")
+    }
+    else {
+        req.flash("notice", "You are logged out.")
+    }
     res.redirect("/account/login")
 }
 
@@ -65,6 +83,13 @@ async function updateAccount(req, res, next) {
     let nav = await utilities.getNav()
     const { account_firstname, account_lastname, account_email } = req.body
     const accountData = res.locals.accountData
+
+    if (accountData) {
+        if (accountData.account_type === "Admin" || accountData.account_type === "Manager") {
+            nav = await utilities.getAdminNav()
+        }
+    }
+
     let tools = await utilities.buildTools(accountData)
     const updateResult = await accountModel.updateAccount(
         accountData.account_id,
@@ -74,7 +99,7 @@ async function updateAccount(req, res, next) {
     )
     if (updateResult) {
         const accessToken = jwt.sign(updateResult, process.env.ACCESS_TOKEN_SECRET, { expiresIn: 3600 })
-        if(process.env.NODE_ENV === 'development') {
+        if (process.env.NODE_ENV === 'development') {
             res.cookie("jwt", accessToken, { httpOnly: true, maxAge: 3600 * 1000 })
         }
         else {
@@ -96,8 +121,17 @@ async function updateAccount(req, res, next) {
 // changePassword
 async function changePassword(req, res, next) {
     let nav = await utilities.getNav()
+
+  
     const { new_pwd, confirm_pwd, current_pwd } = req.body
     const accountData = res.locals.accountData
+
+    if (accountData) {
+        if (accountData.account_type === "Admin" || accountData.account_type === "Manager") {
+            nav = await utilities.getAdminNav()
+        }
+    }
+
     let tools = await utilities.buildTools(accountData);
 
     user = await accountModel.getAccountByEmail(accountData.account_email)
@@ -107,7 +141,7 @@ async function changePassword(req, res, next) {
     const isCurrentPasswordCorrect = bcrypt.compareSync(current_pwd, current_pwd_db);
     if (!isCurrentPasswordCorrect) {
         req.flash("notice", "Current password is incorrect.");
-        return res.redirect("/account/info");
+        return res.redirect("/account/update");
     }
 
     if (new_pwd === confirm_pwd) {
@@ -127,7 +161,7 @@ async function changePassword(req, res, next) {
         }
     } else {
         req.flash("notice", "Passwords do not match.")
-        return res.redirect("/account/info")
+        return res.redirect("/account/update")
     }
 }
 
@@ -136,6 +170,13 @@ async function changePassword(req, res, next) {
 async function buildUpdateAccount(req, res, next) {
     let nav = await utilities.getNav()
     let user = res.locals.accountData
+
+    if (user) {
+        if (user.account_type === "Admin" || user.account_type === "Manager") {
+            nav = await utilities.getAdminNav()
+        }
+    }
+
     let tools = await utilities.buildTools(user)
     res.render("account/update-user", {
         title: "Update Account",
@@ -155,6 +196,12 @@ async function registerAccount(req, res) {
     let nav = await utilities.getNav()
     const { account_firstname, account_lastname, account_email, account_password } = req.body
     const accountData = res.locals.accountData;
+
+    if (accountData) {
+        if (accountData.account_type === "Admin" || accountData.account_type === "Manager") {
+            nav = await utilities.getAdminNav()
+        }
+    }
     let tools = await utilities.buildTools(accountData);
 
     // Hash the password before storing
@@ -205,34 +252,41 @@ async function registerAccount(req, res) {
 async function accountLogin(req, res) {
     let nav = await utilities.getNav()
     const { account_email, account_password } = req.body
-  
+
     const accountData = await accountModel.getAccountByEmail(account_email)
+
+    if (accountData) {
+        if (accountData.account_type === "Admin" || accountData.account_type === "Manager") {
+            nav = await utilities.getAdminNav()
+        }
+    }
+
     let tools = await utilities.buildTools(accountData);
     if (!accountData) {
-     req.flash("notice", "Please check your credentials and try again.")
-     res.status(400).render("account/login", {
-      title: "Login",
-      nav,
-      errors: null,
-      account_email,
-      tools,
-     })
-    return
+        req.flash("notice", "Please check your credentials and try again.")
+        res.status(400).render("account/login", {
+            title: "Login",
+            nav,
+            errors: null,
+            account_email,
+            tools,
+        })
+        return
     }
     try {
-     if (await bcrypt.compare(account_password, accountData.account_password)) {
-     delete accountData.account_password
-     const accessToken = jwt.sign(accountData, process.env.ACCESS_TOKEN_SECRET, { expiresIn: 3600 })
-     if(process.env.NODE_ENV === 'development') {
-       res.cookie("jwt", accessToken, { httpOnly: true, maxAge: 3600 * 1000 })
-       } else {
-         res.cookie("jwt", accessToken, { httpOnly: true, secure: true, maxAge: 3600 * 1000 })
-       }
-     return res.redirect("/account/")
-     }
+        if (await bcrypt.compare(account_password, accountData.account_password)) {
+            delete accountData.account_password
+            const accessToken = jwt.sign(accountData, process.env.ACCESS_TOKEN_SECRET, { expiresIn: 3600 })
+            if (process.env.NODE_ENV === 'development') {
+                res.cookie("jwt", accessToken, { httpOnly: true, maxAge: 3600 * 1000 })
+            } else {
+                res.cookie("jwt", accessToken, { httpOnly: true, secure: true, maxAge: 3600 * 1000 })
+            }
+            return res.redirect("/account/")
+        }
     } catch (error) {
-     return new Error('Access Forbidden')
+        return new Error('Access Forbidden')
     }
-   }
+}
 
-module.exports = {accountLogout, changePassword, buildUpdateAccount, updateAccount, buildAccount, accountLogin, buildLogin, buildRegistration, registerAccount }
+module.exports = { accountLogout, changePassword, buildUpdateAccount, updateAccount, buildAccount, accountLogin, buildLogin, buildRegistration, registerAccount }

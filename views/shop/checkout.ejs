@@ -1,0 +1,15 @@
+<section>
+    <h1><%- messages() %></h1>
+
+    <h2><%- title  %></h2>
+    <p>Thank you for shopping with us. Please confirm your order below.</p>
+
+    <div class="card">
+        <%- table  %>
+
+        <form action="/cart/checkout" method="post">
+        <button class="btn btn-primary">Confirm Order</button>
+        </form>
+
+    </div>
+</section>

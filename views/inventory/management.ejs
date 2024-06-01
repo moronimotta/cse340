@@ -2,10 +2,13 @@
     <h1>Inventory Management</h1>
     <h1><%- messages() %></h1>
 
-    <h2>Manage Inventory</h2>
-    <p>Select a classification from the list to see the items belonging to the classification.</p>
+    <div class="card">
+        <h2>Manage Inventory</h2>
+        <p>Select a classification from the list to see the items belonging to the classification.</p>
 
-    <%- classificationSelect %>
+        <%- classificationSelect %>
+    </div>
+
 
     <table id="inventoryDisplay"></table>
 

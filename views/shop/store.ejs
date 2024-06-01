@@ -1,0 +1,49 @@
+<section>
+    <h1><%- messages() %></h1>
+
+    <h2><%- title %></h2>
+
+    <div class="card">
+        
+        <p><img src="/images/store/cart-icon.png" alt="Cart"> (<%- itensNumber %>)</p>
+        <br>
+        <a href="/cart/checkout" class="btn btn-primary">Proceed to Checkout</a>
+    </div>
+
+    <div id="accessories-container" class="products-container">
+        <%- acCards %>
+    </div>
+
+    <div id="parts-container" class="products-container">
+        <%- pCards %>
+    </div>
+
+
+
+
+</section>
+
+<script>
+
+document.addEventListener('DOMContentLoaded', (event) => {
+    const buttons = document.getElementsByTagName('button');
+    const buttonsArray = Array.from(buttons);
+
+    buttonsArray.forEach(button => {
+        button.addEventListener('click', (e) => {
+            e.preventDefault();
+        
+            const id = button.id;
+
+            fetch(`/cart/add-item/${id}`, {
+                method: 'POST'
+            })
+            .then(res => {
+                window.location.reload();
+            })
+             
+        })
+    })
+});
+
+</script>

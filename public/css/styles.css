@@ -267,6 +267,16 @@ a {
   text-shadow: 2px 2px 4px #000000;
 }
 
+button {
+  background-color: #ab191a;
+  color: white;
+  border: none;
+  padding: 7px;
+  border-radius: 4px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
 
 .card {
   border: 1px solid #dee2e6;
@@ -274,6 +284,11 @@ a {
   box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
   padding: 1rem;
   background-color: var(--background-light);
+}
+
+.card p {
+  color: #ab191a;
+  font-weight: bold;
 }
 
 #card-container {
@@ -332,7 +347,71 @@ footer {
 #tools a {
   text-shadow: 1px 1px 2px #000000;
   color: white;
+  font-weight: bold;
 }
+
+.products-container {
+  margin-bottom: 40px;
+}
+
+.products-container h2 {
+  margin-bottom: 20px;
+}
+
+.product-card {
+  display: inline-block;
+  width: 250px;
+  margin: 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s;
+}
+
+.product-card:hover {
+  transform: scale(1.05);
+}
+
+.product-card img {
+  width: 100%;
+  height: 150px;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  object-fit: cover;
+}
+
+.product-card-content {
+  padding: 15px;
+}
+
+.product-card-content h3 {
+  margin: 0 0 10px;
+  font-size: 18px;
+}
+
+.product-card-content p {
+  margin: 5px 0;
+  color: #555;
+}
+
+.product-card-content .price {
+  font-weight: bold;
+  color: #333;
+}
+
+.product-card-content .amount {
+  color: #777;
+}
+
+.product-card-content a {
+  display: inline-block;
+  margin-top: 10px;
+  text-decoration: none;
+  color: #007bff;
+  font-weight: bold;
+}
+
 
 
 html {
@@ -519,6 +598,40 @@ template {
 [hidden] {
   display: none;
 }
+
+#inventoryDisplay {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+  font-size: 18px;
+  text-align: left;
+  background-color: #fff;
+}
+
+#inventoryDisplay th, #inventoryDisplay td {
+  padding: 12px;
+  border: 1px solid #911617;
+  color: #911617;
+}
+
+#inventoryDisplay thead {
+  background-color: #ab191a;
+  color: #fff;
+}
+
+#inventoryDisplay thead th {
+  color: #fff;
+}
+
+#inventoryDisplay tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+#inventoryDisplay a {
+  text-decoration: none;
+  color: #911617;
+}
+
 
 
 @media screen and (min-width: 768px) {
